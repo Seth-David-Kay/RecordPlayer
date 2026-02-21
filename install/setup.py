@@ -47,7 +47,7 @@ def write_rfid_tags():
         else:
             print(f"Place the tag on the reader")
             rfid.write(uri)
-            print(f"Write of {uri} finished")
+            print(f"Write finished")
 
         print("Please choose an option:")
         print("1. Add another RFID tag")
@@ -62,7 +62,6 @@ def read_rfid_tags():
     while True:
         print("Please scan RFID tag:")
         rfid_id, rfid_text = rfid.read()
-        print(f"id: {rfid_id}, text: {rfid_text}")
 
         if not rfid_text or not rfid_text.startswith("spotify:") or rfid_text.split(":")[1] not in ["track", "album", "playlist", "artist"]:
             print(f"URI {rfid_text} is valid.")
