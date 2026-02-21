@@ -1,7 +1,6 @@
 import os
 import RPi.GPIO as GPIO
 import sys
-import time
 from datetime import datetime, timedelta
 from signal import pause
 import spotipy
@@ -99,8 +98,9 @@ class RecordPlayer:
         URI = str(self.rfid.read_id())
         self.last_rfid = URI
         doresume = False
-        if datetime.now() - self.last_time_paused < timedelta(hours=1):
-            doresume = True
+        if self.last_time_paused:
+            if datetime.now() - self.last_time_paused < timedelta(hours=1):
+                doresume = True
         self.spotify.play(URI, doresume)
 
     def update_off(self):
