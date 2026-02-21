@@ -7,22 +7,6 @@ from spotipy.oauth2 import SpotifyOAuth
 from spotipy.cache_handler import MemoryCacheHandler
 
 ENV_FILE = ".env"
-RFID_FILE = "rfid.json"
-
-def read_rfid_file():
-    rfid_map = {}
-    try:
-        with open(RFID_FILE, 'r') as file:
-            rfid_map = json.load(file)
-    except FileNotFoundError:
-        print("Error: file not found, creating a new rfid_map file.")
-    except json.JSONDecodeError as e:
-        print(f"Error decoding JSON: {e}")
-    return rfid_map
-
-def write_rfid_file(rfid_map):
-    with open(RFID_FILE, "w") as json_file:
-        json.dump(rfid_map, json_file, indent=4)
 
 def set_up_spotify_credentials():
     client_id = input("Enter Spotify Client ID: ").strip()
@@ -52,22 +36,18 @@ def set_up_spotify_credentials():
 
 def write_rfid_tags():
     rfid = SimpleMFRC522()
-    rfid_map = read_rfid_file()
 
     while True:
-        print("Please scan RFID tag:")
-        rfid_id = str(rfid.read_id())
-
-        print(f"RFID ID {rfid_id} detected, enter spotify track, artist, album, or playlist uri:")
+        print(f"Enter spotify track, artist, album, or playlist uri:")
         # Get user input as a string
         uri = input("Spotify URI: ")
 
         if not uri or not uri.startswith("spotify:") or uri.split(":")[1] not in ["track", "album", "playlist", "artist"]:
             print("Invalid URI, spotify URI's must be in the format spotify:{track/album/playlist/artist}:{id}")
         else:
-            rfid_map[rfid_id] = uri
-            write_rfid_file(rfid_map)
-            print(f"Stored URI for RFID ID {rfid_id}")
+            print(f"Place the tag on the reader")
+            rfid.write(uri)
+            print(f"Write finished")
 
         print("Please choose an option:")
         print("1. Add another RFID tag")
@@ -78,16 +58,15 @@ def write_rfid_tags():
 
 def read_rfid_tags():
     rfid = SimpleMFRC522()
-    rfid_map = read_rfid_file()
 
     while True:
         print("Please scan RFID tag:")
         rfid_id = str(rfid.read_id())
 
-        if rfid_id in rfid_map:
-            print(f"RFID ID {rfid_id} is mapped to {rfid_map.get(rfid_id)}.")
+        if not rfid_id or not rfid_id.startswith("spotify:") or rfid_id.split(":")[1] not in ["track", "album", "playlist", "artist"]:
+            print(f"URI {rfid_id} is valid.")
         else:
-            print(f"RFID ID {rfid_id} is not configured.")
+            print(f"URI {rfid_id} is not valid.")
 
         print("Please choose an option:")
         print("1. Read another RFID tag")
