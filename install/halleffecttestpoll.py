@@ -20,7 +20,7 @@ class HallEffectSensor:
             self.last_state = current_state
 
 def main():
-    print("Starting Hall Effect Sensor Test")
+    print("Starting Hall Effect Sensor Test (Poll Driven)")
     hall_sensor = DigitalInputDevice(HALL_SENSOR_PIN, pull_up=True, pin_factory=LGPIOFactory())
 
     player = HallEffectSensor(
