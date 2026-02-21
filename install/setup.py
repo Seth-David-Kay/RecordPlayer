@@ -64,9 +64,9 @@ def read_rfid_tags():
         rfid_id, rfid_text = rfid.read()
 
         if not rfid_text or not rfid_text.startswith("spotify:") or rfid_text.split(":")[1] not in ["track", "album", "playlist", "artist"]:
-            print(f"URI {rfid_text} is valid.")
-        else:
             print(f"URI {rfid_text} is not valid.")
+        else:
+            print(f"URI {rfid_text} is valid.")
 
         print("Please choose an option:")
         print("1. Read another RFID tag")
