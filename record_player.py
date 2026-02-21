@@ -1,8 +1,9 @@
-import json
 import os
 import RPi.GPIO as GPIO
 import sys
 import time
+from datetime import datetime, timedelta
+from signal import pause
 import spotipy
 from dotenv import load_dotenv
 from gpiozero import DigitalInputDevice
@@ -12,12 +13,10 @@ from spotipy.cache_handler import MemoryCacheHandler
 from spotipy.oauth2 import SpotifyOAuth
 
 HALL_SENSOR_PIN = 17
-RFID_FILE = "rfid.json"
 
 class SpotifyController:
     def __init__(self):
         self.init_spotify_client()
-        self.init_rfid_map()
         self.playback_cache = {}
 
     def init_spotify_client(self):
@@ -43,38 +42,24 @@ class SpotifyController:
         auth.refresh_access_token(refresh_token)
         self.sp = spotipy.Spotify(auth_manager=auth)
 
-    def init_rfid_map(self):
-        rfid_map = {}
-        try:
-            with open(RFID_FILE, 'r') as file:
-                rfid_map = json.load(file)
-            if not rfid_map:
-                print("Warning: RFID map is empty.")
-        except FileNotFoundError:
-            print(f"Warning: RFID map file {RFID_FILE} not found.")
-        except json.JSONDecodeError as e:
-            print(f"Error decoding JSON: {e}")
-        self.rfid_map = rfid_map
-
-    def play(self, rfid_id):
+    def play(self, uri, doresume):
         print(f"Starting playback")
-        uri = self.rfid_map.get(str(rfid_id))
         if not uri:
-            print(f"No Spotify URI mapped to RFID {rfid_id}")
+            print(f"No uri scanned or passed in")
             return
 
         spotify_args = {}
         if uri.startswith("spotify:track:"):
             spotify_args["uris"] = [uri]
-            if uri == self.playback_cache.get("track_uri"):
+            if uri == self.playback_cache.get("track_uri") and doresume:
                 print("Track URI is same, resuming playback")
                 spotify_args["position_ms"] = self.playback_cache.get("progress_ms")
         else:
             spotify_args["context_uri"] = uri
-            if uri == self.playback_cache.get("context_uri"):
+            if uri == self.playback_cache.get("context_uri") and doresume:
                 if uri.startswith("spotify:artist:"):
                     print("Context URI is artist, unable to resume playback ")
-                else:
+                elif doresume:
                     print("Context URI is same, resuming playback")
                     spotify_args["offset"] = { "uri": self.playback_cache.get("track_uri") }
                     spotify_args["position_ms"] = self.playback_cache.get("progress_ms")
@@ -107,27 +92,20 @@ class RecordPlayer:
         self.spotify = spotify
         self.rfid = rfid
         self.hall_sensor = hall_sensor
+        self.last_rfid = None
+        self.last_time_paused = None
 
-        self.current_rfid = None
+    def update_on(self):
+        URI = str(self.rfid.read_id())
+        self.last_rfid = URI
+        doresume = False
+        if datetime.now() - self.last_time_paused < timedelta(hours=1):
+            doresume = True
+        self.spotify.play(URI, doresume)
 
-    def update(self):
-        magnet_detected = self.hall_sensor.value
-
-        if magnet_detected:
-            print("Magnet detected → start")
-            self.motor.start()
-
-        elif not magnet_detected:
-            print("Magnet lost → stop")
-            self.current_rfid = None
-            self.spotify.pause()
-
-        if self.spinning:
-            rfid_id = self.rfid.read_id_no_block()
-            if rfid_id and rfid_id != self.current_rfid:
-                print(f"RFID changed: {rfid_id}")
-                self.current_rfid = rfid_id
-                self.spotify.play(rfid_id)
+    def update_off(self):
+        self.last_time_paused = datetime.now()
+        self.spotify.pause()
 
 def main():
     print("Starting Record Player")
@@ -141,10 +119,11 @@ def main():
         hall_sensor=hall_sensor,
     )
 
+    hall_sensor.when_activated = player.update_on()
+    hall_sensor.when_deactivated = player.update_off()
+
     try:
-        while True:
-            player.update()
-            time.sleep(0.1)
+        pause()
     except KeyboardInterrupt:
         print("Shutting down...")
     finally:
