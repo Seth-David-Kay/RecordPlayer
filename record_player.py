@@ -15,7 +15,7 @@ HALL_SENSOR_PIN = 17
 
 class SpotifyController:
     def __init__(self):
-        self.default_device_name = None
+        self.default_device_id = None
         self.init_spotify_client()
         self.playback_cache = {}
 
@@ -26,7 +26,7 @@ class SpotifyController:
         client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
         refresh_token = os.getenv("SPOTIFY_REFRESH_TOKEN")
         redirect_uri = os.getenv("SPOTIFY_REDIRECT_URI")
-        self.default_device_name = os.getenv("DEFAULT_DEVICE_NAME")
+        self.default_device_id = os.getenv("DEFAULT_DEVICE_ID")
 
         if not all([client_id, client_secret, refresh_token, redirect_uri]):
             print("Error: spotify secrets are not set.")
@@ -65,24 +65,13 @@ class SpotifyController:
                     spotify_args["offset"] = { "uri": self.playback_cache.get("track_uri") }
                     spotify_args["position_ms"] = self.playback_cache.get("progress_ms")
 
-        devices = self.sp.devices()
-        for d in devices['devices']:
-            if "Living Room 2" in d['name']:
-                print(f"SONOS_ID = '{d['id']}'")
-        os.exit()
-        default_device_name = self.default_device_name
-        default_device_id = None
+        default_device_id = self.default_device_id
         device_active = False
         devices = self.sp.devices()
         for device in devices['devices']:
             if device['is_active']:
                 device_active = True
-        if not device_active:
-            for device in devices['devices']:
-                if device['name'] != None and default_device_name != None:
-                    if device['name'].strip().lower() == default_device_name.strip().lower():
-                        default_device_id = device['id']
-        # if default_device_id != None:
+        if not device_active and default_device_id != None:
             spotify_args["device_id"] = default_device_id
 
         print(f"Start playback args: {spotify_args}")
