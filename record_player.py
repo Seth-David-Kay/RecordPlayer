@@ -121,8 +121,8 @@ def main():
         hall_sensor=hall_sensor,
     )
 
-    hall_sensor.when_activated = player.update_on()
-    hall_sensor.when_deactivated = player.update_off()
+    hall_sensor.when_activated = player.update_on
+    hall_sensor.when_deactivated = player.update_off
 
     try:
         pause()
