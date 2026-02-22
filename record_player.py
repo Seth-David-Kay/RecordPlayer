@@ -95,7 +95,9 @@ class RecordPlayer:
         self.last_time_paused = None
 
     def update_on(self):
+        print("triggered")
         rfid_id, URI = self.rfid.read()
+        print("read")
         self.last_rfid = URI
         doresume = False
         if self.last_time_paused:
