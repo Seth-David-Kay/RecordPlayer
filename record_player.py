@@ -26,7 +26,7 @@ class SpotifyController:
         client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
         refresh_token = os.getenv("SPOTIFY_REFRESH_TOKEN")
         redirect_uri = os.getenv("SPOTIFY_REDIRECT_URI")
-        self.default_device_name = os.getenv("DEFAULT_DEVICE_NAME=")
+        self.default_device_name = os.getenv("DEFAULT_DEVICE_NAME")
         print(self.default_device_name)
 
         if not all([client_id, client_secret, refresh_token, redirect_uri]):
