@@ -17,6 +17,7 @@ class SpotifyController:
     def __init__(self):
         self.init_spotify_client()
         self.playback_cache = {}
+        self.default_device_name = None
 
     def init_spotify_client(self):
         load_dotenv()
@@ -25,6 +26,7 @@ class SpotifyController:
         client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
         refresh_token = os.getenv("SPOTIFY_REFRESH_TOKEN")
         redirect_uri = os.getenv("SPOTIFY_REDIRECT_URI")
+        self.default_device_name = os.getenv("DEFAULT_DEVICE_NAME")
 
         if not all([client_id, client_secret, refresh_token, redirect_uri]):
             print("Error: spotify secrets are not set.")
@@ -63,7 +65,7 @@ class SpotifyController:
                     spotify_args["offset"] = { "uri": self.playback_cache.get("track_uri") }
                     spotify_args["position_ms"] = self.playback_cache.get("progress_ms")
 
-        default_device_name = "Living Room 2"
+        default_device_name = self.default_device_name
         default_device_id = None
         device_active = False
         devices = self.sp.devices()

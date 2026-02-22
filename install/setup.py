@@ -33,6 +33,9 @@ def set_up_spotify_credentials():
     set_key(ENV_FILE, "SPOTIFY_REFRESH_TOKEN", refresh_token)
     set_key(ENV_FILE, "SPOTIFY_REDIRECT_URI", redirect_uri)
     print("Spotify credentials set.")
+    # This is the name on the spotify app that spotify will default play to if no other device is currently active
+    default_device_name = input("Enter Your Preffered Default Device Name")
+    set_key(ENV_FILE, "DEFAULT_DEVICE_NAME", default_device_name)
 
 def write_rfid_tags():
     rfid = SimpleMFRC522()
