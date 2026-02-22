@@ -97,13 +97,14 @@ class RecordPlayer:
     def update_on(self):
         print("triggered")
         rfid_id, URI = self.rfid.read()
+        clean_uri = URI.strip().replace('\x00', '')
         print("read")
         self.last_rfid = URI
         doresume = False
         if self.last_time_paused:
             if datetime.now() - self.last_time_paused < timedelta(hours=1):
                 doresume = True
-        self.spotify.play(URI, doresume)
+        self.spotify.play(clean_uri, doresume)
 
     def update_off(self):
         self.last_time_paused = datetime.now()
