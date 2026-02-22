@@ -62,6 +62,21 @@ class SpotifyController:
                     print("Context URI is same, resuming playback")
                     spotify_args["offset"] = { "uri": self.playback_cache.get("track_uri") }
                     spotify_args["position_ms"] = self.playback_cache.get("progress_ms")
+
+        default_device_name = "Living Room 2"
+        default_device_id = None
+        device_active = False
+        devices = self.sp.devices()
+        for device in devices['devices']:
+            if device['is_active']:
+                device_active = True
+        if not device_active:
+            for device in devices['devices']:
+                if device['name'].strip().lower() == default_device_name.strip().lower():
+                    default_device_id = device['id']
+        if default_device_id is not None:
+            spotify_args["device_id"] = default_device_id
+
         print(f"Start playback args: {spotify_args}")
         try:
             self.sp.start_playback(**spotify_args)

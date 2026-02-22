@@ -62,3 +62,5 @@ Features RFID detection of tagged records for Spotify content, a stepper motorâ€
     source venv/bin/activate
     python3 record_player.py
     ```
+
+Currently defaults to current playing device and backup is sonos speakers, can edit in record_player spotify play function if want to default sto speakers always later
