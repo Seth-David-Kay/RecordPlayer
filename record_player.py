@@ -15,9 +15,9 @@ HALL_SENSOR_PIN = 17
 
 class SpotifyController:
     def __init__(self):
+        self.default_device_name = None
         self.init_spotify_client()
         self.playback_cache = {}
-        self.default_device_name = None
 
     def init_spotify_client(self):
         load_dotenv()
