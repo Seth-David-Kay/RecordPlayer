@@ -74,18 +74,21 @@ class SpotifyController:
                 device_active = True
         if not device_active:
             for device in devices['devices']:
-                if device['name'] is not None and device['name'].strip().lower() == default_device_name.strip().lower():
-                    default_device_id = device['id']
+                if device['name'] is not None:
+                    if device['name'].strip().lower() == default_device_name.strip().lower():
+                        default_device_id = device['id']
         if default_device_id is not None:
             spotify_args["device_id"] = default_device_id
 
         print(f"Start playback args: {spotify_args}")
+        # check here for a non none device option? or just let it error out?
         try:
             self.sp.start_playback(**spotify_args)
         except Exception as e:
             print(f"Failed to start playback: {e}")
 
     def pause(self):
+        # check here for an active device? or just let is error out?
         try:
             self.sp.pause_playback()
         except Exception as e:
