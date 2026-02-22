@@ -65,19 +65,19 @@ class SpotifyController:
                     spotify_args["offset"] = { "uri": self.playback_cache.get("track_uri") }
                     spotify_args["position_ms"] = self.playback_cache.get("progress_ms")
 
+        is_playing = self.sp.current_playback().get("is_playing", False)
+        print(f"{is_playing=}")
         default_device_id = self.default_device_id
         device_active = False
         devices = self.sp.devices()
-        for device in devices['devices']:
-            if device['is_active']:
-                print("active")
-                device_active = True
-        if not device_active:
+        if not is_playing:
             for device in devices['devices']:
-                default_device_id = device['id']
-                break
-        if not device_active and default_device_id != None:
-            spotify_args["device_id"] = default_device_id
+                if device['is_active']:
+                    # default_device_id = device['id'] # override default id for online device?
+                    device_active = True
+                    break
+            if not device_active and default_device_id != None:
+                spotify_args["device_id"] = default_device_id
 
         print(f"Start playback args: {spotify_args}")
         # check here for a non none device option? or just let it error out?
