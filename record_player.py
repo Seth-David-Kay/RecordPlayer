@@ -26,7 +26,8 @@ class SpotifyController:
         client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
         refresh_token = os.getenv("SPOTIFY_REFRESH_TOKEN")
         redirect_uri = os.getenv("SPOTIFY_REDIRECT_URI")
-        self.default_device_name = os.getenv("DEFAULT_DEVICE_NAME")
+        self.default_device_name = os.getenv("DEFAULT_DEVICE_NAME=")
+        print(self.default_device_name)
 
         if not all([client_id, client_secret, refresh_token, redirect_uri]):
             print("Error: spotify secrets are not set.")
@@ -74,7 +75,7 @@ class SpotifyController:
                 device_active = True
         if not device_active:
             for device in devices['devices']:
-                if device['name'] is not None:
+                if device['name'] is not None and default_device_name is not None:
                     if device['name'].strip().lower() == default_device_name.strip().lower():
                         default_device_id = device['id']
         if default_device_id is not None:
