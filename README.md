@@ -64,3 +64,5 @@ Features RFID detection of tagged records for Spotify content, a stepper motorâ€
     ```
 
 Currently defaults to current playing device and backup is sonos speakers, can edit in record_player spotify play function if want to default sto speakers always later
+
+make sure not having a device id or a blank one in env doesn't break anything

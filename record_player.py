@@ -69,6 +69,7 @@ class SpotifyController:
         device_active = False
         devices = self.sp.devices()
         for device in devices['devices']:
+            print(f"{device=}, {device['id']=}")
             if device['is_active']:
                 device_active = True
         if not device_active and default_device_id != None:
