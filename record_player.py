@@ -72,16 +72,12 @@ class SpotifyController:
         for device in devices['devices']:
             if device['is_active']:
                 device_active = True
-        print(f"{device_active=}")
         if not device_active:
             for device in devices['devices']:
-                print(f"{device['name']=}, {default_device_name=}")
                 if device['name'] != None and default_device_name != None:
-                    print(f"{device['name']=}, {default_device_name=}")
                     if device['name'].strip().lower() == default_device_name.strip().lower():
                         default_device_id = device['id']
-        if default_device_id != None:
-            print("defaulting to device id")
+        # if default_device_id != None:
             spotify_args["device_id"] = default_device_id
 
         print(f"Start playback args: {spotify_args}")
