@@ -66,16 +66,20 @@ class SpotifyController:
                     spotify_args["position_ms"] = self.playback_cache.get("progress_ms")
 
         is_playing = self.sp.current_playback().get("is_playing", False)
-        print(f"{is_playing=}")
         default_device_id = self.default_device_id
         device_active = False
+
         devices = self.sp.devices()
+        for device in devices['devices']:
+            print(f"{device=}")
+
         if not is_playing:
-            for device in devices['devices']:
-                if device['is_active']:
-                    # default_device_id = device['id'] # override default id for online device?
-                    device_active = True
-                    break
+            # override default id for online device?
+            # for device in devices['devices']:
+            #     if device['is_active']:
+            #         default_device_id = device['id']
+            #         device_active = True
+            #         break
             if not device_active and default_device_id != None:
                 spotify_args["device_id"] = default_device_id
 
