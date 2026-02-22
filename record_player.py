@@ -74,7 +74,7 @@ class SpotifyController:
                 device_active = True
         if not device_active:
             for device in devices['devices']:
-                if device['name'].strip().lower() == default_device_name.strip().lower():
+                if device['name'] is not None and device['name'].strip().lower() == default_device_name.strip().lower():
                     default_device_id = device['id']
         if default_device_id is not None:
             spotify_args["device_id"] = default_device_id
