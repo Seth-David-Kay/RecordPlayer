@@ -65,6 +65,11 @@ class SpotifyController:
                     spotify_args["offset"] = { "uri": self.playback_cache.get("track_uri") }
                     spotify_args["position_ms"] = self.playback_cache.get("progress_ms")
 
+        devices = self.sp.devices()
+        for d in devices['devices']:
+            if "Living Room 2" in d['name']:
+                print(f"SONOS_ID = '{d['id']}'")
+        os.exit()
         default_device_name = self.default_device_name
         default_device_id = None
         device_active = False
