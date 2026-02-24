@@ -1,15 +1,11 @@
 import os
 import RPi.GPIO as GPIO
-import sys
 from signal import pause
-import spotipy
 from dotenv import load_dotenv
 from gpiozero import DigitalInputDevice
 from gpiozero.pins.lgpio import LGPIOFactory
 from mfrc522 import SimpleMFRC522
 from soco import SoCo
-from soco.music_services import MusicService
-import urllib.parse
 
 HALL_SENSOR_PIN = 17
 
@@ -34,39 +30,7 @@ class SpotifyController:
             return
 
         try:
-            # ensure speaker is free / not in group or TV/line-in mode
-            try:
-                self.sonos.unjoin()
-            except Exception:
-                # ignore errors if already unjoined
-                pass
-
-            self.sonos.stop()
-            self.sonos.clear_queue()
-
-            # Attempt to add to queue first
-            try:
-                position = self.sonos.add_uri_to_queue(uri)
-                print(f"Added to queue at position {position}")
-                # start playback from first added track
-                self.sonos.play_from_queue(position if position is not None else 0)
-                print("Playback started from queue")
-                return
-
-            except Exception as e_queue:
-                print(f"Queue playback failed: {e_queue}")
-
-            # fallback: direct play_uri if queue approach fails
-            try:
-                print(f"Trying direct play_uri for {uri}")
-                self.sonos.play_uri(uri)
-                print("Playback started via play_uri")
-                return
-            except Exception as e_uri:
-                print(f"Direct play_uri failed: {e_uri}")
-
-            print("Sonos playback could not be started for the provided URI")
-
+            self.sonos.play_uri(f"x-sonos-spotify:{uri}?sid=12&flags=32")
         except Exception as e:
             print(f"Sonos playback failed: {e}")
 
