@@ -36,6 +36,8 @@ def set_up_spotify_credentials():
     # This is the name on the spotify app that spotify will default play to if no other device is currently active
     default_device_id = input("Enter Your Preffered Default Device ID")
     set_key(ENV_FILE, "DEFAULT_DEVICE_ID", default_device_id)
+    sonos_ip = input("Enter Your Preffered Sonos Device Name")
+    set_key(ENV_FILE, "SONOS_DEVICE_IP", sonos_ip)
 
 def write_rfid_tags():
     rfid = SimpleMFRC522()

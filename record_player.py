@@ -65,6 +65,10 @@ class SpotifyController:
                     spotify_args["offset"] = { "uri": self.playback_cache.get("track_uri") }
                     spotify_args["position_ms"] = self.playback_cache.get("progress_ms")
 
+        # should device between sonos/currently playing device
+        # basic spotify should just default to currently playing spotify device and if that
+            # fails ignore the fail (sonos device) otherwise just operate normally using
+            # the active device, if no active device then nothing
         is_playing = self.sp.current_playback().get("is_playing", False)
         default_device_id = self.default_device_id
         device_active = False
