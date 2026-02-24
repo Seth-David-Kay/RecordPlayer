@@ -68,6 +68,7 @@ class SpotifyController:
             try:
                 for track in tracks:
                     self.sonos.add_uri_to_queue(f"x-sonos-spotify:{track['uri']}?sid=12&flags=32")
+                print("playing from queue")
                 self.sonos.play_from_queue(index=0)
             except Exception as e:
                 print(f"Sonos playback failed: {e}")
