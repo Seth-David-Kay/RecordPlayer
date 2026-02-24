@@ -28,16 +28,45 @@ class SpotifyController:
         self.sonos = SoCo(sonos_ip)
 
     def play(self, uri):
-        print(f"Starting playback")
+        print("Starting playback")
         if not uri:
-            print(f"No uri scanned or passed in")
+            print("No uri scanned or passed in")
             return
+
         try:
-            self.sonos.unjoin()
+            # ensure speaker is free / not in group or TV/line-in mode
+            try:
+                self.sonos.unjoin()
+            except Exception:
+                # ignore errors if already unjoined
+                pass
+
             self.sonos.stop()
             self.sonos.clear_queue()
-            self.sonos.add_uri_to_queue(uri)
-            self.sonos.play_from_queue(0)
+
+            # Attempt to add to queue first
+            try:
+                position = self.sonos.add_uri_to_queue(uri)
+                print(f"Added to queue at position {position}")
+                # start playback from first added track
+                self.sonos.play_from_queue(position if position is not None else 0)
+                print("Playback started from queue")
+                return
+
+            except Exception as e_queue:
+                print(f"Queue playback failed: {e_queue}")
+
+            # fallback: direct play_uri if queue approach fails
+            try:
+                print(f"Trying direct play_uri for {uri}")
+                self.sonos.play_uri(uri)
+                print("Playback started via play_uri")
+                return
+            except Exception as e_uri:
+                print(f"Direct play_uri failed: {e_uri}")
+
+            print("Sonos playback could not be started for the provided URI")
+
         except Exception as e:
             print(f"Sonos playback failed: {e}")
 
