@@ -33,9 +33,11 @@ class SpotifyController:
             print(f"No uri scanned or passed in")
             return
         try:
-            encoded = urllib.parse.quote_plus(uri)
-            sonos_uri = f"x-sonos-spotify:{encoded}"
-            self.sonos.play_uri(sonos_uri)
+            self.sonos.unjoin()
+            self.sonos.stop()
+            self.sonos.clear_queue()
+            self.sonos.add_uri_to_queue(uri)
+            self.sonos.play_from_queue(0)
         except Exception as e:
             print(f"Sonos playback failed: {e}")
 
