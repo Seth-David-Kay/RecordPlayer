@@ -46,10 +46,11 @@ class SpotifyController:
         auth.refresh_access_token(refresh_token)
         self.sp = spotipy.Spotify(auth_manager=auth)
 
+    # doresume not implemented yet
     def play(self, uri, doresume):
         print("Starting playback")
-        if doresume:
-            self.sonos.play()
+        # if doresume:
+        #     self.sonos.play_from_queue()
         if not uri:
             print("No uri scanned or passed in")
             return
@@ -81,6 +82,7 @@ class SpotifyController:
             print("not implemented yet")
 
     def pause(self):
+        print("Pausing")
         try:
             self.sonos.pause()
         except Exception as e:
