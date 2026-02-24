@@ -8,6 +8,7 @@ from gpiozero import DigitalInputDevice
 from gpiozero.pins.lgpio import LGPIOFactory
 from mfrc522 import SimpleMFRC522
 from soco import SoCo
+from soco.music_services import MusicService
 
 HALL_SENSOR_PIN = 17
 
@@ -31,7 +32,12 @@ class SpotifyController:
             print(f"No uri scanned or passed in")
             return
         try:
-            self.sonos.play_uri(uri)
+            services = self.sonos.get_music_services()
+            print(f"{services=}")
+            spotify = [s for s in services if 'spotify' in s.service_name.lower()][0]
+            print(f"{spotify=}")
+            sonos_uri = spotify.sonos_uri_from_id(uri)
+            self.sonos.play_uri(sonos_uri)
         except Exception as e:
             print(f"Sonos playback failed: {e}")
 
