@@ -1,10 +1,9 @@
 import sys
-import spotipy
-import json
 from dotenv import set_key
 from mfrc522 import SimpleMFRC522
 from spotipy.oauth2 import SpotifyOAuth
 from spotipy.cache_handler import MemoryCacheHandler
+import spotify_uri
 
 ENV_FILE = ".env"
 
@@ -61,6 +60,15 @@ def write_rfid_tags():
         if choice == "2":
             break
 
+def spotify_uri_from_url():
+    url = input("Enter the spotify link: ")
+    try:
+        spotify_object = spotify_uri.parse(url)
+        uri = spotify_object.toURI()
+        print(uri)
+    except Exception as e:
+        print(f"Incorrect url {e}")
+
 def read_rfid_tags():
     rfid = SimpleMFRC522()
 
@@ -84,7 +92,8 @@ def get_user_choice():
     actions = {
         "1": ("Setup Spotify credentials", set_up_spotify_credentials),
         "2": ("Write RFID tags", write_rfid_tags),
-        "3": ("Read RFID tags", read_rfid_tags)
+        "3": ("Read RFID tags", read_rfid_tags),
+        "4": ("Get spotify uri", spotify_uri_from_url)
     }
 
     exit_key = str(len(actions) + 1)
