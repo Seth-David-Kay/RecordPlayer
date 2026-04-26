@@ -48,6 +48,7 @@ class SpotifyController:
         if doresume:
             try:
                 self.sp.start_playback(self.default_device_id)
+                return
             except Exception as e:
                 print(f"Failed to pause playback: {e}")
         if not uri:
@@ -86,7 +87,6 @@ class RecordPlayer:
         if self.last_time_paused and self.last_rfid:
             if self.last_rfid == rfid_id:
                 if datetime.now() - self.last_time_paused < timedelta(minutes=5):
-                    print("true")
                     doresume = True
         self.spotify.play(clean_uri, doresume)
         self.last_rfid = rfid_id
