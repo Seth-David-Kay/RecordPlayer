@@ -41,7 +41,7 @@ for device in sp.devices()['devices']:
 # start
 device_id = input()
 sp.start_playback(device_id=device_id, context_uri='https://open.spotify.com/playlist/37i9dQZF1DXe7OsxgbX67u?si=319e33a5119d4933')
-sleep(2)
+# sleep(2)
 # pause
 # current_song = sp.currently_playing()['item']['uri']
 # sp.pause_playback()

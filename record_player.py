@@ -72,6 +72,7 @@ class RecordPlayer:
         self.last_time_paused = None
 
     def update_on(self):
+        print("play")
         rfid_id, URI = self.rfid.read()
         clean_uri = URI.strip().replace('\x00', '')
         doresume = False
@@ -83,6 +84,7 @@ class RecordPlayer:
         self.last_rfid = URI
 
     def update_off(self):
+        print("pause")
         self.last_time_paused = datetime.now()
         self.spotify.pause()
 
