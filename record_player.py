@@ -43,6 +43,13 @@ class SpotifyController:
         self.sp = spotipy.Spotify(auth_manager=auth)
 
     def play(self, uri, doresume):
+        if not self.default_device_id:
+            return
+        if doresume:
+            try:
+                self.sp.start_playback(self.default_device_id)
+            except Exception as e:
+                print(f"Failed to pause playback: {e}")
         if not uri:
             return
         spotify_args = {}
@@ -76,12 +83,12 @@ class RecordPlayer:
         rfid_id, URI = self.rfid.read()
         clean_uri = URI.strip().replace('\x00', '')
         doresume = False
-        if self.last_rfid == URI:
-            if self.last_time_paused:
+        if self.last_time_paused and self.last_rfid:
+            if self.last_rfid == rfid_id:
                 if datetime.now() - self.last_time_paused < timedelta(minutes=5):
                     doresume = True
         self.spotify.play(clean_uri, doresume)
-        self.last_rfid = URI
+        self.last_rfid = rfid_id
 
     def update_off(self):
         print("pause")
