@@ -17,7 +17,6 @@ class SpotifyController:
     def __init__(self):
         self.default_device_id = None
         self.init_spotify_client()
-        self.playback_cache = {}
 
     def init_spotify_client(self):
         load_dotenv()
@@ -44,51 +43,14 @@ class SpotifyController:
         self.sp = spotipy.Spotify(auth_manager=auth)
 
     def play(self, uri, doresume):
-        print(f"Starting playback")
         if not uri:
-            print(f"No uri scanned or passed in")
             return
-
         spotify_args = {}
+        spotify_args["device_id"] = self.default_device_id
         if uri.startswith("spotify:track:"):
-            spotify_args["uris"] = [uri]
-            if uri == self.playback_cache.get("track_uri") and doresume:
-                print("Track URI is same, resuming playback")
-                spotify_args["position_ms"] = self.playback_cache.get("progress_ms")
+            spotify_args['uris'] = [uri]
         else:
-            spotify_args["context_uri"] = uri
-            if uri == self.playback_cache.get("context_uri") and doresume:
-                if uri.startswith("spotify:artist:"):
-                    print("Context URI is artist, unable to resume playback ")
-                elif doresume:
-                    print("Context URI is same, resuming playback")
-                    spotify_args["offset"] = { "uri": self.playback_cache.get("track_uri") }
-                    spotify_args["position_ms"] = self.playback_cache.get("progress_ms")
-
-        # should device between sonos/currently playing device
-        # basic spotify should just default to currently playing spotify device and if that
-            # fails ignore the fail (sonos device) otherwise just operate normally using
-            # the active device, if no active device then nothing
-        is_playing = self.sp.current_playback().get("is_playing", False)
-        default_device_id = self.default_device_id
-        device_active = False
-
-        devices = self.sp.devices()
-        for device in devices['devices']:
-            print(f"{device=}")
-
-        if not is_playing:
-            # override default id for online device?
-            # for device in devices['devices']:
-            #     if device['is_active']:
-            #         default_device_id = device['id']
-            #         device_active = True
-            #         break
-            if not device_active and default_device_id != None:
-                spotify_args["device_id"] = default_device_id
-
-        print(f"Start playback args: {spotify_args}")
-        # check here for a non none device option? or just let it error out?
+            spotify_args['context_uri'] = uri
         try:
             self.sp.start_playback(**spotify_args)
         except Exception as e:
@@ -100,18 +62,6 @@ class SpotifyController:
             self.sp.pause_playback()
         except Exception as e:
             print(f"Failed to pause playback: {e}")
-        self.store_playback()
-
-    def store_playback(self):
-        playback = self.sp.current_playback()
-        context = playback.get("context") or {}
-        self.playback_cache = {
-            "type": context.get("type"),
-            "context_uri": context.get("uri"),
-            "progress_ms": playback.get("progress_ms") or 0,
-            "track_uri": playback.get("item", {}).get("uri"),
-        }
-        print(f"Stored playback: {self.playback_cache}")
 
 class RecordPlayer:
     def __init__(self, spotify, rfid, hall_sensor):
@@ -122,16 +72,15 @@ class RecordPlayer:
         self.last_time_paused = None
 
     def update_on(self):
-        print("triggered")
         rfid_id, URI = self.rfid.read()
         clean_uri = URI.strip().replace('\x00', '')
-        print("read")
-        self.last_rfid = URI
         doresume = False
-        if self.last_time_paused:
-            if datetime.now() - self.last_time_paused < timedelta(hours=1):
-                doresume = True
+        if self.last_rfid == URI:
+            if self.last_time_paused:
+                if datetime.now() - self.last_time_paused < timedelta(minutes=5):
+                    doresume = True
         self.spotify.play(clean_uri, doresume)
+        self.last_rfid = URI
 
     def update_off(self):
         self.last_time_paused = datetime.now()

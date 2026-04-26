@@ -1,0 +1,1 @@
+- Can add logic for checking if a device is currently playing and not defaulting to my phone
